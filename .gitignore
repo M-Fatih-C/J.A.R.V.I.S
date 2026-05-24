@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Sanal ortam
+venv/
+.venv/
+
+# uv
+.uv/
+
+# Ortam değişkenleri / sırlar
+.env
+*.key
+
+# Veri ve modeller
+data/
+*.sqlite
+*.db
+chroma/
+
+# Test / kapsama
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Node / UI
+node_modules/
+ui/dist/
+
+# IDE / OS
+.DS_Store
+.idea/
+.vscode/
+
+# Geçici starter dosyaları
+jarvis-starter.zip
