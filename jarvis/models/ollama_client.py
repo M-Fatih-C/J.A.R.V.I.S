@@ -15,34 +15,40 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen2.5:14b"
+DEFAULT_EMBED_MODEL = "nomic-embed-text"
 DEFAULT_TIMEOUT = 120.0
 
 
 class OllamaClient(LLMClient):
     """Yerel Ollama sunucusuyla konuşan async client.
 
-    Ollama'nın REST API'sini (`/api/chat`, `/api/tags`) httpx üzerinden kullanır.
+    Ollama'nın REST API'sini (`/api/chat`, `/api/embed`, `/api/tags`) httpx
+    üzerinden kullanır.
 
     Attributes:
         base_url: Ollama sunucu adresi.
-        default_model: Model belirtilmediğinde kullanılacak model.
+        default_model: Sohbet için model belirtilmediğinde kullanılacak model.
+        embed_model: Embedding için kullanılacak model.
     """
 
     def __init__(
         self,
         base_url: str = DEFAULT_BASE_URL,
         default_model: str = DEFAULT_MODEL,
+        embed_model: str = DEFAULT_EMBED_MODEL,
         timeout: float = DEFAULT_TIMEOUT,
     ) -> None:
         """OllamaClient'ı başlatır.
 
         Args:
             base_url: Ollama sunucu adresi.
-            default_model: Varsayılan model adı.
+            default_model: Varsayılan sohbet modeli adı.
+            embed_model: Varsayılan embedding modeli adı.
             timeout: HTTP istek zaman aşımı (saniye).
         """
         self.base_url = base_url.rstrip("/")
         self.default_model = default_model
+        self.embed_model = embed_model
         self._timeout = timeout
 
     async def chat(
@@ -149,6 +155,36 @@ class OllamaClient(LLMClient):
             latency_ms=latency_ms,
             tokens=None,
         )
+
+    async def embed(
+        self,
+        texts: str | list[str],
+        model: str | None = None,
+    ) -> list[list[float]]:
+        """Verilen metin(ler) için embedding vektörleri üretir.
+
+        Args:
+            texts: Tek bir metin veya metin listesi.
+            model: Kullanılacak embedding modeli; ``None`` ise :attr:`embed_model`.
+
+        Returns:
+            Her girdi için bir vektör içeren liste. Tek metin verilse bile
+            tek elemanlı liste döner.
+
+        Raises:
+            httpx.HTTPError: Sunucuya ulaşılamaz veya hata dönerse.
+        """
+        target_model = model or self.embed_model
+        inputs = [texts] if isinstance(texts, str) else texts
+        payload = {"model": target_model, "input": inputs}
+        logger.debug("Ollama embed isteği: model=%s, girdi=%d", target_model, len(inputs))
+
+        async with httpx.AsyncClient(timeout=self._timeout) as client:
+            resp = await client.post(f"{self.base_url}/api/embed", json=payload)
+            resp.raise_for_status()
+            data = resp.json()
+        embeddings: list[list[float]] = data.get("embeddings", [])
+        return embeddings
 
     async def list_models(self) -> list[str]:
         """Ollama'da yüklü modellerin adlarını döndürür.

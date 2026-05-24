@@ -181,11 +181,11 @@ Jarvis kullanıcıyla konuşurken:
 - [ ] İlk uçtan-uca text chat çalışıyor (kod hazır; `qwen2.5:14b` çekilince doğrulanacak)
 
 ### Faz 2 — Hafıza Sistemi (2 hafta)
-- [ ] `memory/short_term.py` (Redis)
-- [ ] `memory/vector_store.py` (ChromaDB + embedding)
-- [ ] `memory/profile.py` (SQLite şema)
-- [ ] `memory/learning.py` (otomatik özet)
-- [ ] Hafıza CRUD testleri
+- [x] `memory/short_term.py` (Redis)
+- [x] `memory/vector_store.py` (ChromaDB + embedding)
+- [x] `memory/profile.py` (SQLite şema)
+- [x] `memory/learning.py` (otomatik özet)
+- [x] Hafıza CRUD testleri
 
 ### Faz 3 — Model Router + MLX (1-2 hafta)
 - [ ] `models/mlx_client.py`

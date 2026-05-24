@@ -144,6 +144,25 @@ async def test_chat_with_stream_true_collects_full_text() -> None:
     assert resp.tokens is None
 
 
+async def test_embed_single_text() -> None:
+    FakeAsyncClient.post_response = {"embeddings": [[0.1, 0.2, 0.3]]}
+    client = OllamaClient()
+    vectors = await client.embed("merhaba")
+    assert vectors == [[0.1, 0.2, 0.3]]
+
+
+async def test_embed_multiple_texts() -> None:
+    FakeAsyncClient.post_response = {"embeddings": [[0.1], [0.2]]}
+    client = OllamaClient()
+    vectors = await client.embed(["a", "b"])
+    assert len(vectors) == 2
+
+
+def test_embed_model_default() -> None:
+    client = OllamaClient()
+    assert client.embed_model == "nomic-embed-text"
+
+
 async def test_list_models() -> None:
     FakeAsyncClient.get_response = {
         "models": [{"name": "qwen2.5:14b"}, {"name": "nomic-embed-text"}]

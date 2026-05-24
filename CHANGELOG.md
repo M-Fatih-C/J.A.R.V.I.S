@@ -4,6 +4,33 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.2.0] — 2026-05-25
+
+**Faz 2: Hafıza Sistemi** — 3 katmanlı hafıza + pasif öğrenme.
+
+### Eklendi
+- **Kısa süreli hafıza:** `memory/short_term.py` — Redis (async) tabanlı,
+  oturum bazlı konuşma penceresi; `max_messages` kırpma + TTL yenileme.
+- **Vektör hafıza:** `memory/vector_store.py` — gömülü ChromaDB
+  (PersistentClient, kosinüs); embedding dışarıdan enjekte edilir
+  (`EmbedFn`), `add`/`search`/`count`/`delete`.
+- **Kullanıcı profili:** `memory/profile.py` — async SQLAlchemy (aiosqlite)
+  anahtar-değer deposu; hassas alanlar `Cipher` ile **AES-256-GCM** şifreli.
+- **Öğrenme motoru:** `memory/learning.py` — oturumları LLM ile özetleyip
+  vektör hafızaya pekiştiren `LearningEngine` + periyodik worker.
+- **Embedding:** `OllamaClient.embed()` (+ `embed_model`) — `/api/embed`,
+  `nomic-embed-text`.
+
+### Değişti
+- `api/dependencies.py` — Ollama client'ı `embed_model` ile yapılandırılıyor.
+
+### Bağımlılıklar
+- Eklendi: `cryptography`, `aiosqlite`, `greenlet` (main); `fakeredis` (dev).
+
+### Test
+- Yeni: `test_short_term` (fakeredis), `test_vector_store` (sahte embedder),
+  `test_profile`, `test_learning`. Toplam **42 test geçiyor**, 1 skip (e2e).
+
 ## [0.1.0] — 2026-05-25
 
 İlk iskelet sürümü — **Faz 1: Temel İskelet**.

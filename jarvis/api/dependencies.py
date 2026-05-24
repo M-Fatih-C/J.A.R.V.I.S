@@ -21,4 +21,5 @@ def get_ollama_client() -> OllamaClient:
     return OllamaClient(
         base_url=settings.ollama_url,
         default_model=settings.ollama_default_model,
+        embed_model=settings.ollama_embed_model,
     )
