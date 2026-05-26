@@ -205,6 +205,7 @@ Jarvis kullanıcıyla konuşurken:
 - [x] TTS (macOS say/Yelda varsayılan + Piper opsiyonel)
 - [x] Wake word ("Hey Jarvis" — openWakeWord)
 - [x] Pipeline (wake→kayıt→STT→handler→TTS; canlı mikrofon döngüsü, donanım gerektirir)
+- [x] Orchestrator'a bağlama + `scripts/voice.py` çalıştırma girişi
 
 ### Faz 6 — Holo UI (2-3 hafta)
 - [ ] React + TypeScript setup

@@ -4,6 +4,21 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.8.0] — 2026-05-26
+
+**Ses asistanı entegrasyonu** — pipeline Orchestrator'a bağlandı.
+
+### Eklendi
+- **Wiring:** `voice/assistant.py` — `orchestrator_handler` (metin→metin) +
+  `build_voice_pipeline(orchestrator)`: STT+TTS+wake+handler'ı tek pipeline'da
+  birleştirir. Voice katmanı API/langchain'den bağımsız (orchestrator dışarıdan).
+- **Çalıştırma script'i:** `scripts/voice.py` — canlı "Hey Jarvis" döngüsü
+  (`uv run --extra voice --extra mlx python scripts/voice.py`).
+
+### Test
+- Yeni: `test_voice_assistant` — handler + pipeline'ın orchestrator'a doğru
+  yönlendirdiğini doğrular (mock'lu). Toplam **127 test geçiyor**, 6 skip.
+
 ## [0.7.0] — 2026-05-26
 
 **Faz 5: Ses Katmanı** — STT + TTS + wake word + pipeline.

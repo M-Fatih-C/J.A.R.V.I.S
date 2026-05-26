@@ -1,5 +1,6 @@
 """Ses katmanı: STT (Whisper), TTS (say/Piper), wake word (openWakeWord)."""
 
+from jarvis.voice.assistant import build_voice_pipeline, orchestrator_handler
 from jarvis.voice.pipeline import VoicePipeline
 from jarvis.voice.stt import STT, WhisperSTT
 from jarvis.voice.tts import TTS, PiperTTS, SayTTS
@@ -13,4 +14,6 @@ __all__ = [
     "VoicePipeline",
     "WakeWord",
     "WhisperSTT",
+    "build_voice_pipeline",
+    "orchestrator_handler",
 ]
