@@ -2,6 +2,7 @@
 
 from jarvis.tools.base import Tool, ToolRegistry
 from jarvis.tools.calendar_tool import CreateEventTool, ListEventsTool
+from jarvis.tools.code_writer import RunPythonTool
 from jarvis.tools.email_tool import SendEmailTool
 from jarvis.tools.file_system import ListDirTool, ReadFileTool, WriteFileTool
 from jarvis.tools.research import FetchUrlTool
@@ -14,6 +15,7 @@ __all__ = [
     "ListDirTool",
     "ListEventsTool",
     "ReadFileTool",
+    "RunPythonTool",
     "SendEmailTool",
     "ShellExecTool",
     "Tool",

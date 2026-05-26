@@ -196,7 +196,7 @@ Jarvis kullanıcıyla konuşurken:
 ### Faz 4 — Tools (2-3 hafta)
 - [x] Tool calling altyapısı (Tool/ToolRegistry + LangGraph ReAct agent)
 - [x] Web search + research (DuckDuckGo + fetch_url)
-- [ ] Code writer + sandbox (sonraki turda)
+- [x] Code writer + sandbox (run_python — subprocess + guardrail)
 - [x] Shell exec (güvenli — subprocess + guardrail)
 - [x] Calendar, email, file system (file_system tam; calendar/email iskelet)
 

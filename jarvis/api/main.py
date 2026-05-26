@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from jarvis import __version__
 from jarvis.api.dependencies import get_ollama_client
-from jarvis.api.routes import chat, health
+from jarvis.api.routes import agent, chat, health
 from jarvis.config import settings
 
 logging.basicConfig(
@@ -57,6 +57,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(chat.router)
+app.include_router(agent.router)
 
 
 def main() -> None:

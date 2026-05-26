@@ -17,6 +17,7 @@ EXPECTED_TOOLS = {
     "write_file",
     "list_dir",
     "shell_exec",
+    "run_python",
     "web_search",
     "fetch_url",
     "send_email",

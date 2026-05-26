@@ -15,7 +15,7 @@ import httpx
 import pytest
 from httpx import ASGITransport
 
-from jarvis.api.dependencies import get_ollama_client
+from jarvis.api.dependencies import get_agent, get_ollama_client
 from jarvis.api.main import app
 from jarvis.config import settings
 
@@ -26,6 +26,24 @@ async def client() -> httpx.AsyncClient:
     transport = ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
+
+
+class _FakeAgent:
+    """LLM çağırmadan sabit yanıt veren sahte agent (route testi için)."""
+
+    async def run(self, message: str) -> str:
+        return f"sahte yanıt: {message}"
+
+
+async def test_agent_endpoint_wiring(client: httpx.AsyncClient) -> None:
+    """/agent endpoint'i agent'ı çağırıp yanıtı döndürür (DI override ile)."""
+    app.dependency_overrides[get_agent] = lambda: _FakeAgent()
+    try:
+        resp = await client.post("/agent", json={"message": "selam"})
+    finally:
+        app.dependency_overrides.pop(get_agent, None)
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["content"] == "sahte yanıt: selam"
 
 
 async def _deep_model_ready() -> bool:
@@ -79,3 +97,19 @@ async def test_chat_deep_lane(client: httpx.AsyncClient) -> None:
     assert body["lane"] == "deep"
     assert body["model"].split(":")[0] == settings.ollama_default_model.split(":")[0]
     assert body["content"].strip(), "Yanıt boş gelmemeli"
+
+
+@pytest.mark.skipif(
+    "JARVIS_E2E" not in os.environ,
+    reason="Gerçek agent e2e testi atlandı (JARVIS_E2E=1 ile etkinleşir).",
+)
+async def test_agent_endpoint_real(client: httpx.AsyncClient) -> None:
+    """/agent gerçek agent ile araç çağırarak yanıt üretir."""
+    if not await _deep_model_ready():
+        pytest.skip(f"Ollama'da '{settings.ollama_default_model}' modeli yok.")
+    resp = await client.post(
+        "/agent",
+        json={"message": "5 ile 7'yi topla, sonucu run_python ile hesaplayıp söyle."},
+    )
+    assert resp.status_code == 200, resp.text
+    assert resp.json()["content"].strip(), "Yanıt boş gelmemeli"

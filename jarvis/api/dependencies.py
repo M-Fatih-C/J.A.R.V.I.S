@@ -8,6 +8,7 @@ from redis.asyncio import Redis
 
 from jarvis.config import settings
 from jarvis.core import Orchestrator, Router
+from jarvis.core.agent import JarvisAgent, build_default_registry
 from jarvis.memory import ShortTermMemory
 from jarvis.models import MLXClient, OllamaClient
 
@@ -71,3 +72,16 @@ def get_orchestrator() -> Orchestrator:
         deep_client=get_ollama_client(),
         short_term=get_short_term_memory(),
     )
+
+
+@lru_cache(maxsize=1)
+def get_agent() -> JarvisAgent:
+    """Varsayılan araç setiyle yapılandırılmış :class:`JarvisAgent` döndürür.
+
+    Araçlar ``settings.agent_workdir`` dizinine hapsedilir.
+
+    Returns:
+        Tekil (singleton) :class:`JarvisAgent`.
+    """
+    registry = build_default_registry(settings.agent_workdir)
+    return JarvisAgent(registry)

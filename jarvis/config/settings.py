@@ -35,6 +35,9 @@ class Settings(BaseSettings):
     ollama_default_model: str = "qwen2.5:14b"
     ollama_embed_model: str = "nomic-embed-text"
 
+    # ── Agent ──
+    agent_workdir: str = "./data/workspace"
+
     # ── Redis ──
     redis_url: str = "redis://localhost:6379/0"
 

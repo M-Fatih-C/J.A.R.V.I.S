@@ -4,6 +4,22 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.6.0] — 2026-05-26
+
+**Agent API entegrasyonu + code sandbox.**
+
+### Eklendi
+- **run_python:** `tools/code_writer.py` — Python kodunu guardrail'lı sandbox'ta
+  çalıştırır (geçici dosya, cwd hapsi, timeout, çıktı limiti). Agent'ın
+  varsayılan araç setine eklendi.
+- **/agent endpoint:** `api/routes/agent.py` — araç gerektiren çok adımlı
+  istekleri JarvisAgent ile yürütür. `get_agent()` DI + `settings.agent_workdir`.
+  **Canlı doğrulandı:** agent `run_python` ile 123×456=56088 hesapladı.
+
+### Test
+- Yeni: `test_code_writer`, `/agent` route-wiring (DI override) + guard'lı gerçek
+  agent testi. Toplam **110 test geçiyor**, 5 skip.
+
 ## [0.5.0] — 2026-05-26
 
 **Faz 4: Tools + LangGraph agent** — Jarvis artık araç kullanabiliyor.
