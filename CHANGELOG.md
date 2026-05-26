@@ -4,6 +4,17 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [Unreleased]
+
+### Eklendi / Değişti
+- **Deep Think canlı:** `qwen2.5:14b` çekildi; `/chat` deep lane (araştırma/
+  analiz/açıklama mesajları) Ollama/Qwen ile **canlı doğrulandı** (Türkçe,
+  "efendim" hitabı). Artık her iki hat da uçtan uca çalışıyor.
+- **E2E testleri yenilendi:** `test_chat_fast_lane` + `test_chat_deep_lane`
+  (yeni mimariye göre lane doğrular). Katı gecikme sınırı kaldırıldı (yerel
+  LLM'ler donanıma göre değişir). Gerçek model testleri `JARVIS_E2E=1` ile
+  açılır; deep lane modeli yoksa skip.
+
 ## [0.4.0] — 2026-05-26
 
 **Orchestrator entegrasyonu** — Faz 1-3 tek uçtan uca akışta birleşti.

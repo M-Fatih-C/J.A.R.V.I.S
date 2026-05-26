@@ -175,10 +175,10 @@ Jarvis kullanıcıyla konuşurken:
 
 ### Faz 1 — Temel İskelet (1-2 hafta) ⬅ ŞU AN BURADAYIZ
 - [x] Proje klasör yapısını oluştur
-- [ ] Ollama kurulumu + Qwen 2.5 14B çek (Ollama çalışıyor, model henüz çekilmedi)
+- [x] Ollama kurulumu + Qwen 2.5 14B çek (model yüklü, deep lane canlı)
 - [x] `models/ollama_client.py` — temel sohbet (+ base.py, mock'lu testler)
 - [x] `api/main.py` — FastAPI iskelet (/health, /chat, lifespan, CORS, DI)
-- [x] İlk uçtan-uca text chat çalışıyor (Fast Lane/MLX ile canlı; Deep/Ollama `qwen2.5:14b` çekilince)
+- [x] İlk uçtan-uca text chat çalışıyor (Fast Lane/MLX + Deep Think/Qwen canlı doğrulandı)
 
 ### Faz 2 — Hafıza Sistemi (2 hafta)
 - [x] `memory/short_term.py` (Redis)
