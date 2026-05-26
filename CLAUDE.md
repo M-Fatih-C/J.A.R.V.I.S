@@ -188,10 +188,10 @@ Jarvis kullanıcıyla konuşurken:
 - [x] Hafıza CRUD testleri
 
 ### Faz 3 — Model Router + MLX (1-2 hafta)
-- [ ] `models/mlx_client.py`
-- [ ] `core/router.py` (niyet tespiti)
-- [ ] Lazy loading mekanizması
-- [ ] Performance benchmark
+- [x] `models/mlx_client.py` (Phi-3.5 Mini 4bit, lazy load/unload)
+- [x] `core/router.py` (kural tabanlı niyet tespiti)
+- [x] Lazy loading mekanizması
+- [x] Performance benchmark (`scripts/benchmark.py`)
 
 ### Faz 4 — Tools (2-3 hafta)
 - [ ] Tool calling altyapısı

@@ -1,6 +1,6 @@
 [project]
 name = "jarvis"
-version = "0.2.0"
+version = "0.3.0"
 description = "Yerel-öncelikli, gizliliği koruyan, çok-cihazlı kişisel AI asistan"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -33,6 +33,10 @@ dev = [
     "black>=24.10.0",
     "mypy>=1.13.0",
     "fakeredis>=2.26.0",
+]
+# Apple Silicon (arm64) — Fast Lane için MLX yerel çıkarımı
+mlx = [
+    "mlx-lm>=0.20.0",
 ]
 
 [build-system]

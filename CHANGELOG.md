@@ -4,6 +4,29 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.3.0] — 2026-05-26
+
+**Faz 3: Model Router + MLX** — Fast Lane (MLX) ile Deep Think (Ollama) ayrımı.
+
+### Eklendi
+- **MLX client:** `models/mlx_client.py` — Apple MLX üzerinde Phi-3.5 Mini
+  (4bit) çalıştıran async `MLXClient`. **Lazy loading** (ilk istekte yüklenir),
+  `unload()` ile RAM boşaltma, `chat` + thread-queue tabanlı `chat_stream`.
+- **Router:** `core/router.py` — kural tabanlı `Router`; mesaj uzunluğu,
+  derin-düşünme anahtar kelimeleri ve cümle/soru karmaşıklığına göre
+  `Lane.FAST` ↔ `Lane.DEEP` kararı verir (`route`, `pick_client`).
+- **Benchmark:** `scripts/benchmark.py` — MLX vs Ollama gecikme/throughput
+  karşılaştırması (Ollama modeli yoksa atlar).
+
+### Bağımlılıklar
+- Yeni opsiyonel `[mlx]` extra: `mlx-lm` (Apple Silicon). Kurulum:
+  `uv sync --extra mlx`.
+
+### Test
+- Yeni: `test_mlx_client` (mlx_lm mock'lu), `test_router` (parametrik),
+  `test_mlx_smoke` (gerçek model, `JARVIS_MLX_SMOKE=1` ile). Toplam
+  **67 test geçiyor**, 2 skip. Gerçek çıkarım elle doğrulandı (~37 tok/s).
+
 ## [0.2.0] — 2026-05-25
 
 **Faz 2: Hafıza Sistemi** — 3 katmanlı hafıza + pasif öğrenme.
