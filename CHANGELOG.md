@@ -4,6 +4,30 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.7.0] — 2026-05-26
+
+**Faz 5: Ses Katmanı** — STT + TTS + wake word + pipeline.
+
+### Eklendi
+- **STT:** `voice/stt.py` — `WhisperSTT` (mlx-whisper, Apple Silicon). WAV'lar
+  stdlib `wave` ile numpy'a yüklenir (yaygın durumda **ffmpeg gerekmez**).
+- **TTS:** `voice/tts.py` — `SayTTS` (macOS `say`, Türkçe Yelda sesi, sıfır
+  bağımlılık) + `PiperTTS` (opsiyonel nöral, model gerektirir).
+- **Wake word:** `voice/wake_word.py` — `WakeWord` (openWakeWord hazır
+  `hey_jarvis` modeli, eşik tabanlı tetikleme).
+- **Pipeline:** `voice/pipeline.py` — `VoicePipeline`: STT→handler→TTS akışı
+  (`process_utterance`) + canlı mikrofon döngüsü (`run`, lazy sounddevice).
+
+### Bağımlılıklar
+- Yeni opsiyonel `[voice]` extra: `mlx-whisper`, `openwakeword`, `sounddevice`.
+
+### Doğrulama / Test
+- **say→STT round-trip canlı doğrulandı:** `say` ile üretilen Türkçe WAV,
+  mlx-whisper ile (ffmpeg'siz) doğru çözüldü.
+- Yeni testler (TTS gerçek `say`, STT mock + round-trip, wake word mock,
+  pipeline mock). Toplam **124 test geçiyor**, 6 skip. Gerçek STT round-trip
+  `JARVIS_VOICE=1` ile.
+
 ## [0.6.0] — 2026-05-26
 
 **Agent API entegrasyonu + code sandbox.**

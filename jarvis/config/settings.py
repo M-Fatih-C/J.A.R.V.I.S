@@ -38,6 +38,12 @@ class Settings(BaseSettings):
     # ── Agent ──
     agent_workdir: str = "./data/workspace"
 
+    # ── Voice ──
+    stt_model: str = "mlx-community/whisper-large-v3-turbo"
+    tts_voice: str = "Yelda"  # macOS 'say' Türkçe sesi
+    wake_word: str = "hey_jarvis"
+    wake_threshold: float = 0.5
+
     # ── Redis ──
     redis_url: str = "redis://localhost:6379/0"
 

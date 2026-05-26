@@ -201,10 +201,10 @@ Jarvis kullanıcıyla konuşurken:
 - [x] Calendar, email, file system (file_system tam; calendar/email iskelet)
 
 ### Faz 5 — Ses Katmanı (1-2 hafta)
-- [ ] Whisper.cpp entegrasyonu
-- [ ] Piper TTS
-- [ ] Wake word ("Hey Jarvis")
-- [ ] Real-time streaming
+- [x] STT entegrasyonu (mlx-whisper; ffmpeg'siz WAV yükleme — say→STT doğrulandı)
+- [x] TTS (macOS say/Yelda varsayılan + Piper opsiyonel)
+- [x] Wake word ("Hey Jarvis" — openWakeWord)
+- [x] Pipeline (wake→kayıt→STT→handler→TTS; canlı mikrofon döngüsü, donanım gerektirir)
 
 ### Faz 6 — Holo UI (2-3 hafta)
 - [ ] React + TypeScript setup

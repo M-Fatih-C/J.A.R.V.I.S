@@ -38,7 +38,7 @@ async def test_temp_script_cleaned_up(tmp_path: Path) -> None:
     tool = RunPythonTool(str(tmp_path))
     await tool.run(code="print('hi')")
     # Geçici .py dosyaları temizlenmeli (yalnızca kullanıcı çıktısı kalır).
-    leftover = list(tmp_path.glob("*.py"))  # noqa: ASYNC240 — test, perf önemsiz
+    leftover = list(tmp_path.glob("*.py"))
     assert leftover == []
 
 
