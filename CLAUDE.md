@@ -194,11 +194,11 @@ Jarvis kullanıcıyla konuşurken:
 - [x] Performance benchmark (`scripts/benchmark.py`)
 
 ### Faz 4 — Tools (2-3 hafta)
-- [ ] Tool calling altyapısı
-- [ ] Web search + research
-- [ ] Code writer + sandbox
-- [ ] Shell exec (güvenli)
-- [ ] Calendar, email, file system
+- [x] Tool calling altyapısı (Tool/ToolRegistry + LangGraph ReAct agent)
+- [x] Web search + research (DuckDuckGo + fetch_url)
+- [ ] Code writer + sandbox (sonraki turda)
+- [x] Shell exec (güvenli — subprocess + guardrail)
+- [x] Calendar, email, file system (file_system tam; calendar/email iskelet)
 
 ### Faz 5 — Ses Katmanı (1-2 hafta)
 - [ ] Whisper.cpp entegrasyonu

@@ -4,7 +4,35 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
-## [Unreleased]
+## [0.5.0] — 2026-05-26
+
+**Faz 4: Tools + LangGraph agent** — Jarvis artık araç kullanabiliyor.
+
+### Eklendi
+- **Tool altyapısı:** `tools/base.py` — `Tool` ABC (name/description/args_schema/
+  async run) + `ToolRegistry` + LangChain `StructuredTool` adaptörü.
+- **Araçlar:**
+  - `file_system.py` — `read_file`/`write_file`/`list_dir`, kök dizine hapsedilmiş
+    (path traversal engelli).
+  - `shell_exec.py` — `shell_exec`; subprocess (shell=False), komut allowlist,
+    timeout, dizin hapsi, çıktı limiti.
+  - `web_search.py` — `web_search`; anahtarsız DuckDuckGo (ddgs).
+  - `research.py` — `fetch_url`; sayfa getir + HTML→metin.
+  - `email_tool.py` — `send_email` (SMTP iskelet, kimlik bilgisi sonra).
+  - `calendar_tool.py` — `create_calendar_event`/`list_calendar_events`
+    (CalDAV/Google iskelet).
+- **Agent:** `core/agent.py` — `ChatOllama` (Qwen 2.5, native tool-calling) +
+  LangChain `create_agent` ReAct döngüsü; `build_default_registry` + `JarvisAgent`.
+  **Canlı doğrulandı:** agent `write_file` aracını çağırıp dosya oluşturdu.
+
+### Bağımlılıklar
+- Yeni: `langchain-ollama`, `ddgs`.
+
+### Test
+- Yeni: fs/shell, web/research, calendar/email, agent testleri. Toplam
+  **103 test geçiyor**, 4 skip. Gerçek agent testi `JARVIS_E2E=1` ile.
+
+## [0.4.1] — 2026-05-26
 
 ### Eklendi / Değişti
 - **Deep Think canlı:** `qwen2.5:14b` çekildi; `/chat` deep lane (araştırma/
