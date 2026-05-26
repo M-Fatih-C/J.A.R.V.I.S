@@ -4,6 +4,29 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.4.0] — 2026-05-26
+
+**Orchestrator entegrasyonu** — Faz 1-3 tek uçtan uca akışta birleşti.
+
+### Eklendi
+- **Orchestrator:** `core/orchestrator.py` — Router ile lane seçer, kısa süreli
+  hafızadan bağlam + sistem prompt ekler, yanıtı üretir ve konuşmayı hafızaya
+  geri yazar. Redis erişilemezse durumsuz (stateless) devam eder. `ChatResult`
+  modeli lane + gerekçe döndürür.
+- **DI:** `get_mlx_client`, `get_router`, `get_short_term_memory`,
+  `get_orchestrator` sağlayıcıları.
+
+### Değişti
+- `/chat` artık Orchestrator üzerinden çalışıyor; istek `session_id` alır,
+  yanıt `lane`/`reason` içerir. Fast Lane (MLX) uçtan uca **canlı doğrulandı**
+  (~0.5s, temiz Türkçe yanıt).
+- `MLXClient`: modelin `eos_token_id`'si durdurma kümesine eklendi (üretim
+  artık tur sonunda duruyor) ve çıktıya sızan özel token'lar kırpılıyor.
+  Gecikme örnekte 13s → ~0.3s'ye düştü.
+
+### Test
+- Yeni: `test_orchestrator` (sahte client + fakeredis). Toplam **73 test**, 2 skip.
+
 ## [0.3.0] — 2026-05-26
 
 **Faz 3: Model Router + MLX** — Fast Lane (MLX) ile Deep Think (Ollama) ayrımı.

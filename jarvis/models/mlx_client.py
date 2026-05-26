@@ -63,7 +63,23 @@ class MLXClient(LLMClient):
             logger.info("MLX model yükleniyor: %s", self.model_name)
             loaded: Any = load(self.model_name)
             self._model, self._tokenizer = loaded[0], loaded[1]
+            self._register_eos()
             logger.info("MLX model hazır: %s", self.model_name)
+
+    def _register_eos(self) -> None:
+        """Sohbet turu sonu token'ını (ör. Phi-3.5 '<|end|>') durdurma kümesine ekler.
+
+        Bazı modellerde tokenizer'ın varsayılan ``eos_token_ids`` kümesi sohbet
+        şablonunun tur-bitiş token'ını içermez; bu durumda model durmaz. Modelin
+        kendi ``eos_token_id``'sini durdurma kümesine ekleyerek bunu garanti ederiz.
+        """
+        eos_id = getattr(self._tokenizer, "eos_token_id", None)
+        eos_set = getattr(self._tokenizer, "eos_token_ids", None)
+        if eos_id is not None and eos_set is not None:
+            try:
+                eos_set.add(eos_id)
+            except Exception:  # noqa: BLE001 — durdurma token'ı eklenemezse kritik değil
+                pass
 
     def unload(self) -> None:
         """Modeli bellekten bırakır ve MLX önbelleğini temizler."""
@@ -92,6 +108,14 @@ class MLXClient(LLMClient):
             )
             return prompt
         return "\n".join(f"{m.role}: {m.content}" for m in messages) + "\nassistant:"
+
+    @staticmethod
+    def _clean_output(text: str) -> str:
+        """Çıktıya sızan özel token'ları (ör. ``<|end|>``) ve sonrasını kırpar."""
+        idx = text.find("<|")
+        if idx != -1:
+            text = text[:idx]
+        return text.strip()
 
     # ── Senkron çıkarım (thread'de çalıştırılır) ──
 
@@ -133,10 +157,11 @@ class MLXClient(LLMClient):
         prompt = self._build_prompt(messages)
 
         start = time.perf_counter()
-        text = await asyncio.to_thread(self._generate_sync, prompt)
+        raw = await asyncio.to_thread(self._generate_sync, prompt)
         latency_ms = (time.perf_counter() - start) * 1000
 
-        tokens = len(self._tokenizer.encode(text)) if self._tokenizer else None
+        content = self._clean_output(raw)
+        tokens = len(self._tokenizer.encode(content)) if self._tokenizer else None
         logger.info(
             "MLX yanıt: model=%s, latency=%.0fms, tokens=%s",
             self.model_name,
@@ -144,7 +169,7 @@ class MLXClient(LLMClient):
             tokens,
         )
         return ChatResponse(
-            content=text.strip(),
+            content=content,
             model=self.model_name,
             latency_ms=latency_ms,
             tokens=tokens,
@@ -195,8 +220,15 @@ class MLXClient(LLMClient):
             piece = await queue.get()
             if piece is None:
                 break
-            if piece:
-                yield piece
+            if not piece:
+                continue
+            # Özel token sızarsa öncesini ver ve akışı bitir.
+            if "<|" in piece:
+                head = piece[: piece.find("<|")]
+                if head:
+                    yield head
+                break
+            yield piece
 
     async def _chat_collected(self, messages: list[ChatMessage]) -> ChatResponse:
         """Akışı toplayıp tek :class:`ChatResponse` olarak döndürür."""

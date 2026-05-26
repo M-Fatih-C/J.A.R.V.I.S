@@ -178,7 +178,7 @@ Jarvis kullanıcıyla konuşurken:
 - [ ] Ollama kurulumu + Qwen 2.5 14B çek (Ollama çalışıyor, model henüz çekilmedi)
 - [x] `models/ollama_client.py` — temel sohbet (+ base.py, mock'lu testler)
 - [x] `api/main.py` — FastAPI iskelet (/health, /chat, lifespan, CORS, DI)
-- [ ] İlk uçtan-uca text chat çalışıyor (kod hazır; `qwen2.5:14b` çekilince doğrulanacak)
+- [x] İlk uçtan-uca text chat çalışıyor (Fast Lane/MLX ile canlı; Deep/Ollama `qwen2.5:14b` çekilince)
 
 ### Faz 2 — Hafıza Sistemi (2 hafta)
 - [x] `memory/short_term.py` (Redis)
