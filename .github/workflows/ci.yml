@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  quality:
+    # Apple Silicon runner — mlx/mlx-whisper yalnızca arm64 macOS'ta kurulur.
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: uv kurulumu
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Bağımlılıkları kur (dev + mlx + voice)
+        run: uv sync --extra dev --extra mlx --extra voice
+
+      - name: Ruff (lint)
+        run: uv run ruff check .
+
+      - name: Black (format kontrolü)
+        run: uv run black --check .
+
+      - name: Mypy (tip kontrolü)
+        run: uv run mypy jarvis/
+
+      - name: Pytest
+        # Gerçek model gerektiren testler (JARVIS_E2E/VOICE/MLX_SMOKE/EMBED)
+        # ortam değişkeni olmadığından otomatik atlanır.
+        run: uv run pytest -q
