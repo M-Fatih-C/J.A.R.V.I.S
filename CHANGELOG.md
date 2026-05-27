@@ -4,6 +4,26 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.9.0] — 2026-05-27
+
+**Faz 6: Holo UI** — WebSocket + React + Three.js holografik arayüz.
+
+### Eklendi
+- **WebSocket backend:** `api/websocket.py` — `/ws` endpoint; mesaj alır,
+  Orchestrator ile işler, `status`/`response`/`error` event'leri yayınlar.
+- **Holo UI (`ui/`):** Vite + React 19 + TypeScript.
+  - `useJarvisSocket` — `/ws` bağlantısı (otomatik reconnect), zustand store.
+  - `Scene` (react-three-fiber Canvas): `JarvisCore` (duruma göre nabız atan
+    bozulan küre, MeshDistortMaterial), `VoiceWave` (48 çubuklu ses halkası),
+    Sparkles + Stars parçacık alanı.
+  - `ChatPanel`, `StatusIndicator`, `SettingsPanel` (WS adresi/oturum/vurgu rengi).
+  - Çekirdek ve dalga, idle/thinking/speaking durumuna göre canlanır.
+
+### Test / Doğrulama
+- `test_websocket.py` — `/ws` akışı starlette TestClient ile doğrulandı
+  (fake orchestrator). **130 test geçiyor**, 6 skip.
+- UI: `npm run build` (tsc + vite) temiz derlendi (597 modül).
+
 ## [0.8.0] — 2026-05-26
 
 **Ses asistanı entegrasyonu** — pipeline Orchestrator'a bağlandı.

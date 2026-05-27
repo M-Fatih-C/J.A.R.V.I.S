@@ -208,10 +208,10 @@ Jarvis kullanıcıyla konuşurken:
 - [x] Orchestrator'a bağlama + `scripts/voice.py` çalıştırma girişi
 
 ### Faz 6 — Holo UI (2-3 hafta)
-- [ ] React + TypeScript setup
-- [ ] WebSocket bağlantısı
-- [ ] Dinamik görselleştirme (sesli dalga, durum)
-- [ ] Üç boyutlu efektler (Three.js)
+- [x] React + TypeScript setup (Vite, ui/)
+- [x] WebSocket bağlantısı (/ws + useJarvisSocket, otomatik reconnect)
+- [x] Dinamik görselleştirme (durum göstergesi, ses dalgası halkası)
+- [x] Üç boyutlu efektler (react-three-fiber: bozulan çekirdek + parçacıklar)
 
 ### Faz 7 — Çoklu Cihaz (2 hafta)
 - [ ] Tailscale kurulumu
