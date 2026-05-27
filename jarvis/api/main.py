@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import logging
-from collections.abc import AsyncIterator
+import time
+import uuid
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from jarvis import __version__
+from jarvis import metrics as metrics_mod
 from jarvis.api import websocket
 from jarvis.api.dependencies import get_ollama_client
 from jarvis.api.routes import agent, auth, chat, health
@@ -55,6 +58,39 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def observability_middleware(
+    request: Request, call_next: Callable[[Request], Awaitable[Response]]
+) -> Response:
+    """Her isteğe X-Request-ID atar, süreyi loglar ve Prometheus'a kaydeder."""
+    request_id = request.headers.get("X-Request-ID") or uuid.uuid4().hex[:12]
+    start = time.perf_counter()
+    response = await call_next(request)
+    elapsed = time.perf_counter() - start
+
+    path = request.url.path
+    method = request.method
+    metrics_mod.LATENCY.labels(method, path).observe(elapsed)
+    metrics_mod.REQUESTS.labels(method, path, response.status_code).inc()
+    response.headers["X-Request-ID"] = request_id
+    logger.info(
+        "%s %s -> %s (%.0fms) [%s]",
+        method,
+        path,
+        response.status_code,
+        elapsed * 1000,
+        request_id,
+    )
+    return response
+
+
+@app.get("/metrics", include_in_schema=False)
+async def metrics() -> Response:
+    """Prometheus metriklerini sunar."""
+    return Response(metrics_mod.render(), media_type=metrics_mod.CONTENT_TYPE)
+
 
 app.include_router(health.router)
 app.include_router(auth.router)

@@ -117,14 +117,17 @@ cd ui && npm run dev
 ## 📅 Yol Haritası
 
 - [x] Mimari tasarım
-- [~] **Faz 1:** Temel iskelet + Ollama entegrasyonu ← _şu an (kod hazır, model çekilmeyi bekliyor)_
-- [ ] **Faz 2:** Hafıza sistemi
-- [ ] **Faz 3:** Model router + MLX
-- [ ] **Faz 4:** Tools (web, code, shell, vb.)
-- [ ] **Faz 5:** Ses katmanı
-- [ ] **Faz 6:** Holo UI
-- [ ] **Faz 7:** Çoklu cihaz (iOS + Windows)
-- [ ] **Faz 8:** Agent + polish
+- [x] **Faz 1:** Temel iskelet + Ollama entegrasyonu
+- [x] **Faz 2:** Hafıza sistemi
+- [x] **Faz 3:** Model router + MLX
+- [x] **Faz 4:** Tools (web, code, shell, vb.)
+- [x] **Faz 5:** Ses katmanı
+- [x] **Faz 6:** Holo UI
+- [x] **Faz 7:** Çoklu cihaz (iOS + Windows)
+- [x] **Faz 8:** Agent + polish (retry, Prometheus, auth)
+
+> **v1.0.0** — tüm fazlar tamamlandı. API: `/health` · `/auth/token` · `/chat` ·
+> `/agent` · `/ws` · `/metrics`.
 
 ## 🔒 Gizlilik
 

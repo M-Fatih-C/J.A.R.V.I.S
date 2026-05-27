@@ -70,6 +70,7 @@ class JarvisAgent:
         model: str | None = None,
         base_url: str | None = None,
         system_prompt: str = AGENT_SYSTEM_PROMPT,
+        recursion_limit: int = 25,
     ) -> None:
         """JarvisAgent'ı başlatır.
 
@@ -78,8 +79,10 @@ class JarvisAgent:
             model: Ollama sohbet modeli; ``None`` ise ayarlardaki varsayılan.
             base_url: Ollama adresi; ``None`` ise ayarlardaki değer.
             system_prompt: Agent sistem prompt'u.
+            recursion_limit: Agent döngüsünün azami adım sayısı (sonsuz döngü koruması).
         """
         self.registry = registry
+        self.recursion_limit = recursion_limit
         self._llm = ChatOllama(
             model=model or settings.ollama_default_model,
             base_url=base_url or settings.ollama_url,
@@ -100,9 +103,15 @@ class JarvisAgent:
             Agent'ın ürettiği son yanıt metni.
         """
         logger.info("Agent çalışıyor: %r", message)
-        result: dict[str, Any] = await self._agent.ainvoke(
-            cast(Any, {"messages": [("user", message)]})
-        )
+        try:
+            result: dict[str, Any] = await self._agent.ainvoke(
+                cast(Any, {"messages": [("user", message)]}),
+                config=cast(Any, {"recursion_limit": self.recursion_limit}),
+            )
+        except Exception:  # noqa: BLE001 — agent hatasını nazik mesaja çevir
+            logger.exception("Agent çalışması başarısız")
+            return "Bu isteği tamamlayamadım efendim; bir hata oluştu."
+
         messages = result.get("messages", [])
         if not messages:
             return ""

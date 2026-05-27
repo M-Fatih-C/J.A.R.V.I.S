@@ -46,6 +46,36 @@ def test_agent_builds(tmp_path: Path) -> None:
     agent = JarvisAgent(registry)
     assert agent._agent is not None
     assert set(agent.registry.names()) == EXPECTED_TOOLS
+    assert agent.recursion_limit == 25
+
+
+async def test_run_handles_errors_gracefully(tmp_path: Path) -> None:
+    """Agent çalışması hata fırlatırsa nazik bir mesaja düşülür (çökmez)."""
+    agent = JarvisAgent(build_default_registry(str(tmp_path)))
+
+    class _Boom:
+        async def ainvoke(self, *_args: object, **_kwargs: object) -> dict:
+            raise RuntimeError("model çöktü")
+
+    agent._agent = _Boom()  # type: ignore[assignment]
+    reply = await agent.run("bir şey yap")
+    assert "tamamlayamadım" in reply
+
+
+async def test_run_passes_recursion_limit(tmp_path: Path) -> None:
+    """run, yapılandırılmış recursion_limit'i ainvoke config'ine geçirir."""
+    agent = JarvisAgent(build_default_registry(str(tmp_path)), recursion_limit=7)
+    captured: dict[str, object] = {}
+
+    class _Capture:
+        async def ainvoke(self, _input: object, config: dict | None = None) -> dict:
+            captured["config"] = config
+            return {"messages": [type("M", (), {"content": "ok"})()]}
+
+    agent._agent = _Capture()  # type: ignore[assignment]
+    result = await agent.run("selam")
+    assert result == "ok"
+    assert captured["config"] == {"recursion_limit": 7}
 
 
 @pytest.mark.skipif(

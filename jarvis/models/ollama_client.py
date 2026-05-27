@@ -10,6 +10,7 @@ from collections.abc import AsyncIterator
 import httpx
 
 from jarvis.models.base import ChatMessage, ChatResponse, LLMClient
+from jarvis.util import retry_async
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,7 @@ DEFAULT_BASE_URL = "http://localhost:11434"
 DEFAULT_MODEL = "qwen2.5:14b"
 DEFAULT_EMBED_MODEL = "nomic-embed-text"
 DEFAULT_TIMEOUT = 120.0
+DEFAULT_MAX_RETRIES = 2  # toplam 3 deneme
 
 
 class OllamaClient(LLMClient):
@@ -37,6 +39,7 @@ class OllamaClient(LLMClient):
         default_model: str = DEFAULT_MODEL,
         embed_model: str = DEFAULT_EMBED_MODEL,
         timeout: float = DEFAULT_TIMEOUT,
+        max_retries: int = DEFAULT_MAX_RETRIES,
     ) -> None:
         """OllamaClient'ı başlatır.
 
@@ -45,11 +48,39 @@ class OllamaClient(LLMClient):
             default_model: Varsayılan sohbet modeli adı.
             embed_model: Varsayılan embedding modeli adı.
             timeout: HTTP istek zaman aşımı (saniye).
+            max_retries: Geçici ağ hatalarında ek deneme sayısı.
         """
         self.base_url = base_url.rstrip("/")
         self.default_model = default_model
         self.embed_model = embed_model
         self._timeout = timeout
+        self._max_retries = max_retries
+
+    async def _post_json(self, path: str, payload: dict) -> dict:
+        """POST yapar, geçici ağ hatalarında yeniden dener, JSON döndürür."""
+
+        async def _do() -> dict:
+            async with httpx.AsyncClient(timeout=self._timeout) as client:
+                resp = await client.post(f"{self.base_url}{path}", json=payload)
+                resp.raise_for_status()
+                return resp.json()  # type: ignore[no-any-return]
+
+        return await retry_async(
+            _do, attempts=self._max_retries + 1, retry_on=(httpx.TransportError,)
+        )
+
+    async def _get_json(self, path: str) -> dict:
+        """GET yapar, geçici ağ hatalarında yeniden dener, JSON döndürür."""
+
+        async def _do() -> dict:
+            async with httpx.AsyncClient(timeout=self._timeout) as client:
+                resp = await client.get(f"{self.base_url}{path}")
+                resp.raise_for_status()
+                return resp.json()  # type: ignore[no-any-return]
+
+        return await retry_async(
+            _do, attempts=self._max_retries + 1, retry_on=(httpx.TransportError,)
+        )
 
     async def chat(
         self,
@@ -83,10 +114,7 @@ class OllamaClient(LLMClient):
         logger.debug("Ollama chat isteği: model=%s, mesaj=%d", target_model, len(messages))
 
         start = time.perf_counter()
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            resp = await client.post(f"{self.base_url}/api/chat", json=payload)
-            resp.raise_for_status()
-            data = resp.json()
+        data = await self._post_json("/api/chat", payload)
         latency_ms = (time.perf_counter() - start) * 1000
 
         content = data.get("message", {}).get("content", "")
@@ -179,10 +207,7 @@ class OllamaClient(LLMClient):
         payload = {"model": target_model, "input": inputs}
         logger.debug("Ollama embed isteği: model=%s, girdi=%d", target_model, len(inputs))
 
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            resp = await client.post(f"{self.base_url}/api/embed", json=payload)
-            resp.raise_for_status()
-            data = resp.json()
+        data = await self._post_json("/api/embed", payload)
         embeddings: list[list[float]] = data.get("embeddings", [])
         return embeddings
 
@@ -192,10 +217,7 @@ class OllamaClient(LLMClient):
         Returns:
             Model adlarından oluşan liste; hata olursa boş liste.
         """
-        async with httpx.AsyncClient(timeout=self._timeout) as client:
-            resp = await client.get(f"{self.base_url}/api/tags")
-            resp.raise_for_status()
-            data = resp.json()
+        data = await self._get_json("/api/tags")
         return [m["name"] for m in data.get("models", [])]
 
     async def health_check(self) -> bool:

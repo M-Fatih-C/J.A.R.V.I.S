@@ -4,6 +4,28 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [1.0.0] — 2026-05-27
+
+**Faz 8: Agent + Polishing** — retry, monitoring, sağlamlaştırma. Faz 1–8 tamam.
+
+### Eklendi
+- **Retry:** `util/retry.py` — `retry_async` (üstel backoff). `OllamaClient`
+  geçici ağ hatalarında (`httpx.TransportError`) otomatik yeniden dener
+  (`max_retries`).
+- **Prometheus:** `jarvis/metrics.py` + `/metrics` endpoint; observability
+  middleware istek sayısı/gecikme kaydeder, orchestrator lane sayacı tutar.
+- **Request-id + log:** her isteğe `X-Request-ID` + yapılandırılmış log (süre).
+- **Zengin /health:** `ollama` + `mlx` + `redis` alt sistem durumları.
+- **Agent guard:** `JarvisAgent.run` hata yakalama + `recursion_limit`
+  (sonsuz döngü koruması).
+
+### Bağımlılıklar
+- Yeni: `prometheus-client`.
+
+### Test
+- `test_retry`, `test_metrics_health`, agent guard testleri + OllamaClient
+  retry testleri. **155 test geçiyor**, 6 skip; ruff/black/mypy temiz.
+
 ## [0.10.0] — 2026-05-27
 
 **Faz 7: Çoklu Cihaz** — JWT auth + Tailscale + Windows/iOS istemcileri.

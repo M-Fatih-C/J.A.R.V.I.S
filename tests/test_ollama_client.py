@@ -56,6 +56,7 @@ class FakeAsyncClient:
     get_response: dict[str, Any] | None = None
     stream_lines: list[str] | None = None
     get_should_raise: bool = False
+    post_fail_times: int = 0  # ilk N post çağrısı ConnectError fırlatır
 
     def __init__(self, *args: object, **kwargs: object) -> None:
         pass
@@ -67,6 +68,9 @@ class FakeAsyncClient:
         return None
 
     async def post(self, url: str, json: dict[str, Any] | None = None) -> FakeResponse:
+        if FakeAsyncClient.post_fail_times > 0:
+            FakeAsyncClient.post_fail_times -= 1
+            raise httpx.ConnectError("geçici bağlantı hatası")
         assert FakeAsyncClient.post_response is not None
         return FakeResponse(FakeAsyncClient.post_response)
 
@@ -88,7 +92,13 @@ def patch_httpx(monkeypatch: pytest.MonkeyPatch) -> None:
     FakeAsyncClient.get_response = None
     FakeAsyncClient.stream_lines = None
     FakeAsyncClient.get_should_raise = False
+    FakeAsyncClient.post_fail_times = 0
     monkeypatch.setattr(oc.httpx, "AsyncClient", FakeAsyncClient)
+
+    async def _instant(_seconds: float) -> None:
+        return None
+
+    monkeypatch.setattr("jarvis.util.retry.asyncio.sleep", _instant)
 
 
 async def test_chat_returns_chat_response() -> None:
@@ -142,6 +152,22 @@ async def test_chat_with_stream_true_collects_full_text() -> None:
     resp = await client.chat([ChatMessage(role="user", content="hi")], stream=True)
     assert resp.content == "AB"
     assert resp.tokens is None
+
+
+async def test_chat_retries_transient_error() -> None:
+    # İlk 2 deneme ConnectError, 3.'de başarı (max_retries=2 → 3 deneme).
+    FakeAsyncClient.post_fail_times = 2
+    FakeAsyncClient.post_response = {"message": {"content": "ok"}, "done": True}
+    client = OllamaClient(max_retries=2)
+    resp = await client.chat([ChatMessage(role="user", content="hi")])
+    assert resp.content == "ok"
+
+
+async def test_chat_gives_up_after_retries() -> None:
+    FakeAsyncClient.post_fail_times = 99  # hep başarısız
+    client = OllamaClient(max_retries=2)
+    with pytest.raises(httpx.ConnectError):
+        await client.chat([ChatMessage(role="user", content="hi")])
 
 
 async def test_embed_single_text() -> None:

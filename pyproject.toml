@@ -1,6 +1,6 @@
 [project]
 name = "jarvis"
-version = "0.10.0"
+version = "1.0.0"
 description = "Yerel-öncelikli, gizliliği koruyan, çok-cihazlı kişisel AI asistan"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -26,6 +26,7 @@ dependencies = [
     "aiosqlite>=0.20.0",
     "greenlet>=3.1.0",
     "pyjwt>=2.9.0",
+    "prometheus-client>=0.21.0",
 ]
 
 [project.optional-dependencies]

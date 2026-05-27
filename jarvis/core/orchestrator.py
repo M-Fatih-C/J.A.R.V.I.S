@@ -14,6 +14,7 @@ from pydantic import BaseModel
 
 from jarvis.core.router import Lane, Router
 from jarvis.memory.short_term import ShortTermMemory
+from jarvis.metrics import CHAT_LANE
 from jarvis.models import ChatMessage
 from jarvis.models.base import LLMClient
 
@@ -88,6 +89,7 @@ class Orchestrator:
             Yanıt ve yönlendirme bilgisini içeren :class:`ChatResult`.
         """
         decision = self._router.route(message)
+        CHAT_LANE.labels(lane=decision.lane.value).inc()
         client = self._fast if decision.lane == Lane.FAST else self._deep
 
         history = await self._load_history(session_id)

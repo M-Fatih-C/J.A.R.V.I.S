@@ -89,6 +89,18 @@ class ShortTermMemory:
         await self._redis.delete(self._key(session_id))
         logger.debug("Oturum temizlendi: session=%s", session_id)
 
+    async def ping(self) -> bool:
+        """Redis'e erişilebilirliği kontrol eder.
+
+        Returns:
+            Redis yanıt veriyorsa ``True``, aksi halde ``False``.
+        """
+        try:
+            await cast("Awaitable[bool]", self._redis.ping())
+            return True
+        except Exception:  # noqa: BLE001 — erişilemezlik False döndürür
+            return False
+
     async def count(self, session_id: str) -> int:
         """Oturumdaki mesaj sayısını döndürür.
 

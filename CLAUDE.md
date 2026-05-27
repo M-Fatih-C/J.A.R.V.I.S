@@ -173,7 +173,7 @@ Jarvis kullanıcıyla konuşurken:
 
 ## 🚦 Geliştirme Fazları
 
-### Faz 1 — Temel İskelet (1-2 hafta) ⬅ ŞU AN BURADAYIZ
+### Faz 1 — Temel İskelet (1-2 hafta)
 - [x] Proje klasör yapısını oluştur
 - [x] Ollama kurulumu + Qwen 2.5 14B çek (model yüklü, deep lane canlı)
 - [x] `models/ollama_client.py` — temel sohbet (+ base.py, mock'lu testler)
@@ -220,10 +220,10 @@ Jarvis kullanıcıyla konuşurken:
 - [x] Senkronizasyon (JWT auth + merkezî backend + paylaşılan SDK; oturum hafızası ortak)
 
 ### Faz 8 — Agent + Polishing (2 hafta)
-- [ ] LangGraph agent flow'ları
-- [ ] Hata yakalama, retry
-- [ ] Monitoring (Prometheus)
-- [ ] Production-ready
+- [x] LangGraph agent flow'ları (create_agent ReAct + recursion_limit/hata koruması)
+- [x] Hata yakalama, retry (util/retry.py üstel backoff; OllamaClient geçici hata retry)
+- [x] Monitoring (Prometheus /metrics + middleware; lane/istek/gecikme metrikleri)
+- [x] Production-ready (request-id + log middleware, zengin /health, JWT auth)
 
 ---
 
@@ -259,6 +259,6 @@ Bir faz bittiğinde:
 
 ---
 
-**Son güncelleme:** 2026-05-24
-**Versiyon:** 1.0.0-alpha
+**Son güncelleme:** 2026-05-27
+**Versiyon:** 1.0.0 (Faz 1–8 tamamlandı)
 **Sahibi:** Fatih

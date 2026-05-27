@@ -1,4 +1,4 @@
-"""Sağlık kontrolü endpoint'i."""
+"""Sağlık kontrolü endpoint'i — servis ve alt sistem durumları."""
 
 from __future__ import annotations
 
@@ -7,27 +7,40 @@ from typing import Annotated
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel
 
-from jarvis.api.dependencies import get_ollama_client
-from jarvis.models import OllamaClient
+from jarvis.api.dependencies import (
+    get_mlx_client,
+    get_ollama_client,
+    get_short_term_memory,
+)
+from jarvis.memory import ShortTermMemory
+from jarvis.models import MLXClient, OllamaClient
 
 router = APIRouter(tags=["health"])
 
 
 class HealthResponse(BaseModel):
-    """`/health` yanıtı."""
+    """`/health` yanıtı — servis ve alt sistem durumları."""
 
     status: str
     ollama: bool
+    mlx: bool
+    redis: bool
 
 
 @router.get("/health", response_model=HealthResponse)
 async def health(
-    client: Annotated[OllamaClient, Depends(get_ollama_client)],
+    ollama: Annotated[OllamaClient, Depends(get_ollama_client)],
+    mlx: Annotated[MLXClient, Depends(get_mlx_client)],
+    short_term: Annotated[ShortTermMemory, Depends(get_short_term_memory)],
 ) -> HealthResponse:
-    """Servisin ve Ollama bağlantısının durumunu döndürür.
+    """Servisin ve alt sistemlerin (Ollama, MLX, Redis) durumunu döndürür.
 
     Returns:
-        Genel durum ve Ollama erişilebilirliği.
+        Genel durum ve her alt sistemin erişilebilirliği.
     """
-    ollama_ok = await client.health_check()
-    return HealthResponse(status="ok", ollama=ollama_ok)
+    return HealthResponse(
+        status="ok",
+        ollama=await ollama.health_check(),
+        mlx=await mlx.health_check(),
+        redis=await short_term.ping(),
+    )
