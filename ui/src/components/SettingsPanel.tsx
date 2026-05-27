@@ -3,7 +3,7 @@ import { useStore } from "../store";
 
 export function SettingsPanel() {
   const [open, setOpen] = useState(false);
-  const { wsUrl, sessionId, accent, setSettings } = useStore();
+  const { wsUrl, sessionId, accent, deviceKey, setSettings } = useStore();
 
   return (
     <>
@@ -29,6 +29,15 @@ export function SettingsPanel() {
             <input
               value={sessionId}
               onChange={(e) => setSettings({ sessionId: e.target.value })}
+            />
+          </label>
+          <label>
+            Cihaz anahtarı (auth)
+            <input
+              type="password"
+              value={deviceKey}
+              placeholder="auth kapalıysa boş bırakın"
+              onChange={(e) => setSettings({ deviceKey: e.target.value })}
             />
           </label>
           <label>

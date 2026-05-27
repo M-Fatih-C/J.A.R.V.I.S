@@ -15,6 +15,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 
+from jarvis.api.auth import get_ws_principal
 from jarvis.api.dependencies import get_orchestrator
 from jarvis.core import Orchestrator
 
@@ -27,12 +28,14 @@ router = APIRouter()
 async def websocket_endpoint(
     websocket: WebSocket,
     orchestrator: Annotated[Orchestrator, Depends(get_orchestrator)],
+    _principal: Annotated[str, Depends(get_ws_principal)],
 ) -> None:
     """Holo UI için gerçek zamanlı sohbet WebSocket'i.
 
     Args:
         websocket: İstemci bağlantısı.
         orchestrator: Enjekte edilen Orchestrator (beyin).
+        _principal: ``?token=`` ile doğrulanmış principal.
     """
     await websocket.accept()
     logger.info("WS bağlantısı açıldı.")

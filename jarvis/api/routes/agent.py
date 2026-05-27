@@ -7,6 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from jarvis.api.auth import get_current_principal
 from jarvis.api.dependencies import get_agent
 from jarvis.core.agent import JarvisAgent
 
@@ -29,6 +30,7 @@ class AgentResponse(BaseModel):
 async def run_agent(
     request: AgentRequest,
     agent: Annotated[JarvisAgent, Depends(get_agent)],
+    _principal: Annotated[str, Depends(get_current_principal)],
 ) -> AgentResponse:
     """Çok adımlı, araç gerektiren bir isteği agent ile yürütür.
 

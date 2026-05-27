@@ -7,6 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
+from jarvis.api.auth import get_current_principal
 from jarvis.api.dependencies import get_orchestrator
 from jarvis.core import ChatResult, Orchestrator
 
@@ -24,6 +25,7 @@ class ChatRequest(BaseModel):
 async def chat(
     request: ChatRequest,
     orchestrator: Annotated[Orchestrator, Depends(get_orchestrator)],
+    _principal: Annotated[str, Depends(get_current_principal)],
 ) -> ChatResult:
     """Kullanıcı mesajını Orchestrator'a iletir ve yanıtı döndürür.
 

@@ -9,11 +9,15 @@ interface JarvisState {
   wsUrl: string;
   sessionId: string;
   accent: string;
+  /** Auth açıkken /auth/token için cihaz anahtarı (boşsa auth atlanır). */
+  deviceKey: string;
 
   setStatus: (status: JarvisStatus) => void;
   setConnected: (connected: boolean) => void;
   addMessage: (message: ChatMessage) => void;
-  setSettings: (settings: Partial<Pick<JarvisState, "wsUrl" | "sessionId" | "accent">>) => void;
+  setSettings: (
+    settings: Partial<Pick<JarvisState, "wsUrl" | "sessionId" | "accent" | "deviceKey">>,
+  ) => void;
 }
 
 function defaultWsUrl(): string {
@@ -30,6 +34,7 @@ export const useStore = create<JarvisState>((set) => ({
   wsUrl: defaultWsUrl(),
   sessionId: "ui",
   accent: "#38e8ff",
+  deviceKey: "",
 
   setStatus: (status) => set({ status }),
   setConnected: (connected) => set({ connected }),

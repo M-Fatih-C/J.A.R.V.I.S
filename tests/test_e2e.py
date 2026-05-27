@@ -15,6 +15,7 @@ import httpx
 import pytest
 from httpx import ASGITransport
 
+from jarvis.api.auth import get_current_principal
 from jarvis.api.dependencies import get_agent, get_ollama_client
 from jarvis.api.main import app
 from jarvis.config import settings
@@ -22,10 +23,14 @@ from jarvis.config import settings
 
 @pytest.fixture
 async def client() -> httpx.AsyncClient:
-    """Uygulamaya doğrudan (ağ olmadan) bağlanan async test client'ı."""
+    """Uygulamaya doğrudan (ağ olmadan) bağlanan async test client'ı (auth bypass)."""
+    app.dependency_overrides[get_current_principal] = lambda: "test"
     transport = ASGITransport(app=app)
-    async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
-        yield c
+    try:
+        async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
+            yield c
+    finally:
+        app.dependency_overrides.pop(get_current_principal, None)
 
 
 class _FakeAgent:

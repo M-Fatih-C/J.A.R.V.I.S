@@ -214,10 +214,10 @@ Jarvis kullanıcıyla konuşurken:
 - [x] Üç boyutlu efektler (react-three-fiber: bozulan çekirdek + parçacıklar)
 
 ### Faz 7 — Çoklu Cihaz (2 hafta)
-- [ ] Tailscale kurulumu
-- [ ] iOS app (SwiftUI)
-- [ ] Windows app (PyQt6)
-- [ ] Senkronizasyon
+- [x] Tailscale kurulumu (scripts/setup_tailscale.sh + clients/README docs)
+- [x] iOS app (SwiftUI iskelet — clients/ios, Xcode ile derlenir)
+- [x] Windows app (PyQt6 — clients/windows, platform-bağımsız)
+- [x] Senkronizasyon (JWT auth + merkezî backend + paylaşılan SDK; oturum hafızası ortak)
 
 ### Faz 8 — Agent + Polishing (2 hafta)
 - [ ] LangGraph agent flow'ları

@@ -7,6 +7,7 @@ from collections.abc import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
+from jarvis.api.auth import get_ws_principal
 from jarvis.api.dependencies import get_orchestrator
 from jarvis.api.main import app
 from jarvis.core import Lane
@@ -27,10 +28,12 @@ class FakeOrchestrator:
 @pytest.fixture
 def client() -> Iterator[TestClient]:
     app.dependency_overrides[get_orchestrator] = lambda: FakeOrchestrator()
+    app.dependency_overrides[get_ws_principal] = lambda: "test"
     try:
         yield TestClient(app)
     finally:
         app.dependency_overrides.pop(get_orchestrator, None)
+        app.dependency_overrides.pop(get_ws_principal, None)
 
 
 def test_ws_chat_flow(client: TestClient) -> None:

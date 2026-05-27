@@ -4,6 +4,31 @@ Bu projedeki tüm önemli değişiklikler bu dosyada belgelenir.
 Format [Keep a Changelog](https://keepachangelog.com/) temellidir;
 sürümleme [Semantic Versioning](https://semver.org/) izler.
 
+## [0.10.0] — 2026-05-27
+
+**Faz 7: Çoklu Cihaz** — JWT auth + Tailscale + Windows/iOS istemcileri.
+
+### Eklendi
+- **JWT auth:** `api/auth.py` — cihaz anahtarı → token (`/auth/token`),
+  HTTP (Bearer) ve WS (`?token=`) principal bağımlılıkları. `/chat`, `/agent`,
+  `/ws` korundu. `AUTH_ENABLED` ile aç/kapa (varsayılan açık); `DEVICE_KEY`.
+- **İstemci SDK:** `jarvis/client.py` — `JarvisClient` (senkron httpx; auth +
+  chat + health), istemciler ve testler için.
+- **Windows istemci:** `clients/windows/main.py` — PyQt6 sohbet penceresi
+  (platform-bağımsız: macOS/Windows/Linux), ağ ayrı thread'de.
+- **iOS istemci:** `clients/ios/` — SwiftUI iskelet (JarvisApp/ContentView/
+  JarvisClient) + Shortcuts notları (Xcode ile derlenir).
+- **Tailscale:** `scripts/setup_tailscale.sh` + `clients/README.md` rehberi.
+- **Holo UI:** cihaz anahtarı alanı; WS bağlanmadan önce token alır (`?token=`).
+
+### Bağımlılıklar
+- Yeni: `pyjwt`; opsiyonel `[windows]` extra: `PyQt6`.
+
+### Test
+- `test_auth` (token + koruma), `test_client` (SDK, MockTransport),
+  `test_windows_client` (izole alt süreçte import smoke). **143 test geçiyor**,
+  6 skip. UI tsc + vite build temiz.
+
 ## [0.9.0] — 2026-05-27
 
 **Faz 6: Holo UI** — WebSocket + React + Three.js holografik arayüz.

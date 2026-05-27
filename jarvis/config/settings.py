@@ -55,8 +55,11 @@ class Settings(BaseSettings):
     sqlite_encryption_key: str = "change-me"
 
     # ── Security ──
-    jwt_secret: str = "change-me-please"
+    jwt_secret: str = "change-me-please-to-a-32+byte-random-secret"
     jwt_algorithm: str = "HS256"
+    auth_enabled: bool = True
+    device_key: str = "change-me-device-key"  # cihazların token almak için sunduğu sır
+    jwt_expire_minutes: int = 60 * 24 * 7  # 7 gün
 
 
 settings = Settings()
