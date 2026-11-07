@@ -64,7 +64,7 @@ async def _deep_model_ready() -> bool:
     return any(m.split(":")[0] == target for m in models)
 
 
-async def test_health_endpoint(client: httpx.AsyncClient) -> None:
+async def test_health_endpoint(client: httpx.AsyncClient, offline_health_dependencies) -> None:
     resp = await client.get("/health")
     assert resp.status_code == 200
     body = resp.json()

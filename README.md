@@ -1,148 +1,85 @@
-# 🤖 J.A.R.V.I.S.
+# J.A.R.V.I.S — assistant prototype
 
-> **Just A Rather Very Intelligent System**
-> Yerel-öncelikli, gizliliği koruyan, çok-cihazlı kişisel AI asistan
+An alpha assistant combining Ollama/optional Apple MLX, model routing, memory,
+tool experiments, voice and a React/Three.js interface. This is a broad
+multi-component prototype. The implemented modules and historical roadmap do not
+establish a production-ready assistant or verified support for every device.
 
-[![Status](https://img.shields.io/badge/status-alpha-orange)]()
-[![License](https://img.shields.io/badge/license-MIT-blue)]()
-[![Python](https://img.shields.io/badge/python-3.11+-blue)]()
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20iOS%20%7C%20Windows-lightgrey)]()
+It is independent of `jarvis-core`: this repository installs the `jarvis` package
+and uses `python -m jarvis.api.main`; the other project has a separate deterministic
+policy/state-machine core and different contracts. Keep their environments separate.
 
-## ✨ Neler Yapabilir?
+## Components
 
-- 🎙️ **Sesli komut** — "Hey Jarvis" der demez seni dinler
-- 🧠 **Hibrit zeka** — Hızlı görevler MLX, derin düşünme Ollama (Qwen 2.5)
-- 📚 **Seni öğrenir** — Tercihlerini, alışkanlıklarını hatırlar
-- 🌐 **İnternette araştırır** — Çoklu kaynaktan rapor üretir
-- 💻 **Kod yazar** — Geliştirme yardımcısı + shell komutları
-- 📅 **Yönetir** — Takvim, mail, dosyalar, hatırlatmalar
-- 🏠 **Evi kontrol eder** — HomeKit, Home Assistant entegrasyonu
-- 🖥️ **Holografik arayüz** — Gerçek Jarvis hissi veren dinamik UI
-- 📱 **Her yerden erişim** — Mac, iPhone, Windows senkronize
+`jarvis/core/` routes/orchestrates requests; `models/` adapts Ollama/MLX;
+`memory/` uses Redis, ChromaDB and SQLite profile storage; `tools/` contains
+web/code/shell and other integrations; `voice/` experiments with speech and wake
+words. `jarvis/api/` exposes FastAPI routes, `ui/` is the visual React client,
+and `clients/` contains separate iOS/Windows client work.
 
-## 🏗️ Mimari
+## Development setup
 
-```
-┌─────────────────────────────────────────────┐
-│           HOLO UI · iOS · WINDOWS           │  Layer 01
-├─────────────────────────────────────────────┤
-│      FAST LANE  ←→  DEEP THINK  ←→  AGENT   │  Layer 02
-├─────────────────────────────────────────────┤
-│    SHORT-TERM · VECTOR · PROFILE · LEARN    │  Layer 03
-├─────────────────────────────────────────────┤
-│   WEB · CODE · SHELL · MAIL · CAL · HOME    │  Layer 04
-├─────────────────────────────────────────────┤
-│        TAILSCALE · API GATEWAY · SYNC       │  Layer 05
-└─────────────────────────────────────────────┘
-                Mac M4 (16GB)
-```
-
-Tam mimari diyagram için: [`docs/architecture.html`](docs/architecture.html)
-
-## 🚀 Hızlı Başlangıç
-
-### Gereksinimler
-- macOS (Apple Silicon, M1+)
-- Python 3.11+
-- Node.js 20+
-- 16GB+ RAM
-- Tailscale hesabı
-
-### Kurulum
+Use Python 3.12 for the tested environment and supported Node 22 for the UI.
+Apple MLX/voice extras need compatible macOS/Apple Silicon; they are not portable
+dependencies for every platform.
 
 ```bash
-# Repoyu klonla
-git clone https://github.com/fatih/jarvis.git
-cd jarvis
-
-# Otomatik kurulum
-./scripts/setup.sh
-
-# Ollama'yı başlat
-ollama serve &
-ollama pull qwen2.5:14b
-ollama pull nomic-embed-text
-
-# Servisleri başlat
-docker-compose up -d  # Redis + ChromaDB
-python -m jarvis.api.main
+git clone https://github.com/M-Fatih-C/J.A.R.V.I.S.git
+cd J.A.R.V.I.S
+uv sync --locked --extra dev
+cp .env.example .env
+# Configure your own secrets and optional services before starting.
+uv run python -m jarvis.api.main
 ```
 
-### İlk Konuşma
+The server now defaults to **127.0.0.1:8000** in both code and the example config.
+Provide your own local Ollama and, where needed, Redis/ChromaDB services; the
+Compose file describes supporting services, not a verified production deployment.
+MLX can be installed with `uv sync --locked --extra dev --extra mlx` on supported
+hardware. Do not download large models merely to run the offline contract suite.
+
+UI development is separate:
 
 ```bash
-curl -X POST http://localhost:8000/chat \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Merhaba Jarvis"}'
+cd ui
+npm ci --ignore-scripts
+npm run build
 ```
 
-Beklenen çıktı:
-```json
-{
-  "response": "İyi günler efendim. Ne istersiniz?",
-  "model": "qwen2.5:14b",
-  "latency_ms": 412
-}
-```
-
-## 📦 Bileşenler
-
-| Modül | Açıklama | Tech |
-|-------|----------|------|
-| `core/` | Orchestrator, router, agent | Python, LangGraph |
-| `models/` | LLM client'ları | Ollama, MLX |
-| `memory/` | 3 katmanlı hafıza | Redis, ChromaDB, SQLite |
-| `tools/` | Yetenekler | Çeşitli |
-| `voice/` | STT/TTS/wake word | Whisper, Piper |
-| `api/` | REST + WebSocket | FastAPI |
-| `ui/` | Holo UI | React, Three.js |
-
-## 🛠️ Geliştirme
+## Tests and status
 
 ```bash
-# Test çalıştır
-pytest tests/ -v
-
-# Lint
-ruff check .
-black .
-
-# Type check
-mypy jarvis/
-
-# UI geliştirme
-cd ui && npm run dev
+uv run pytest -q
+uv run ruff check .
 ```
 
-## 📅 Yol Haritası
+The baseline dev-only test collection needed optional MLX installed; the test now
+explicitly skips that module when MLX is absent. Two health contract tests previously
+attempted real provider connections; they now override only those dependencies
+with offline unavailable-service adapters, retaining the actual endpoint/auth tests.
+With the MLX extra installed, the updated suite passed 158 tests and skipped 7
+explicitly gated/platform-dependent cases with external sockets blocked. New
+configuration tests check loopback and production-secret rejection.
+Real-model, voice and end-to-end tests remain opt-in or platform-dependent and are
+not claimed as passed. The audit built the UI successfully; it emitted a large-chunk
+warning. Inspect the current PR checks and validation notes for exact results.
 
-- [x] Mimari tasarım
-- [x] **Faz 1:** Temel iskelet + Ollama entegrasyonu
-- [x] **Faz 2:** Hafıza sistemi
-- [x] **Faz 3:** Model router + MLX
-- [x] **Faz 4:** Tools (web, code, shell, vb.)
-- [x] **Faz 5:** Ses katmanı
-- [x] **Faz 6:** Holo UI
-- [x] **Faz 7:** Çoklu cihaz (iOS + Windows)
-- [x] **Faz 8:** Agent + polish (retry, Prometheus, auth)
+## Security and privacy boundaries
 
-> **v1.0.0** — tüm fazlar tamamlandı. API: `/health` · `/auth/token` · `/chat` ·
-> `/agent` · `/ws` · `/metrics`.
+Set unique JWT, device and SQLite-profile encryption secrets before storing data.
+`ENV=prod` now rejects disabled authentication, example keys and keys shorter than
+32 characters. This validation and loopback default reduce configuration mistakes;
+they are not production certification. Changing a profile-encryption key can make
+existing values unreadable; plan a separate data migration/backup procedure.
 
-## 🔒 Gizlilik
+Profile encryption applies to selected values, not the whole SQLite database or
+every log/cache. Web, mail and configurable remote services may send data outside
+the machine. Tool execution, filesystem access, shell commands and network exposure
+require explicit trust and further review. Keep keys, personal conversations,
+recordings, indexes and generated files out of commits. No unconditional “all data
+stays local”, full-database encryption or performance claim is made.
 
-- ✅ **Tüm veri yerel** — Hiçbir şey buluta gitmiyor
-- ✅ **Şifreli depolama** — AES-256 ile DB şifreli
-- ✅ **Tailscale VPN** — Cihazlar arası trafik şifreli
-- ✅ **Açık kaynak** — Her satırı inceleyebilirsin
-- ✅ **Unutma komutu** — "Şunu unut" deyince siler
 
-## 📄 Lisans
+## License and contact
 
-MIT © Fatih
-
-## 🙏 Teşekkürler
-
-- [Ollama](https://ollama.com) ekibi
-- [MLX](https://github.com/ml-explore/mlx) ekibi
-- [Anthropic](https://anthropic.com) — Claude Code ile geliştirildi
+See the existing [MIT license](LICENSE). Author: [Muhammet Fatih Çetintaş](https://github.com/M-Fatih-C).

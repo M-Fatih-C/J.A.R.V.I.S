@@ -4,10 +4,11 @@ from __future__ import annotations
 
 from typing import Any
 
-import mlx_lm
 import pytest
 
 from jarvis.models import ChatMessage, ChatResponse, MLXClient
+
+mlx_lm = pytest.importorskip("mlx_lm", reason="Optional MLX dependencies are not installed")
 
 
 class FakeTokenizer:
