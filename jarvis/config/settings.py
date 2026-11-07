@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Literal
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -27,7 +28,7 @@ class Settings(BaseSettings):
     log_level: str = "INFO"
 
     # ── Server ──
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
     port: int = 8000
 
     # ── Ollama ──
@@ -60,6 +61,19 @@ class Settings(BaseSettings):
     auth_enabled: bool = True
     device_key: str = "change-me-device-key"  # cihazların token almak için sunduğu sır
     jwt_expire_minutes: int = 60 * 24 * 7  # 7 gün
+
+    @model_validator(mode="after")
+    def require_production_secrets(self) -> Settings:
+        if self.env == "prod":
+            if not self.auth_enabled:
+                raise ValueError("Production mode requires authentication")
+            for name in ("jwt_secret", "device_key", "sqlite_encryption_key"):
+                value = getattr(self, name)
+                if len(value) < 32 or value.startswith("change-me"):
+                    raise ValueError(
+                        f"Production mode requires a unique {name} of at least 32 characters"
+                    )
+        return self
 
 
 settings = Settings()

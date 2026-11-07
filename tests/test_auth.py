@@ -62,5 +62,5 @@ def test_protected_endpoint_rejects_bad_token(
     assert resp.status_code == 401
 
 
-def test_health_is_public(client: TestClient) -> None:
+def test_health_is_public(client: TestClient, offline_health_dependencies) -> None:
     assert client.get("/health").status_code == 200
