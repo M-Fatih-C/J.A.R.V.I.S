@@ -40,7 +40,7 @@ dev = [
 ]
 # Apple Silicon (arm64) — Fast Lane için MLX yerel çıkarımı
 mlx = [
-    "mlx-lm>=0.20.0",
+    "mlx-lm>=0.32.2",
 ]
 # Ses katmanı — STT (mlx-whisper), wake word (openWakeWord), mikrofon
 voice = [
