@@ -17,8 +17,11 @@ jobs:
         with:
           enable-cache: true
 
+      - name: Python 3.12 kurulumu
+        run: uv python install 3.12
+
       - name: Bağımlılıkları kur (dev + mlx + voice)
-        run: uv sync --extra dev --extra mlx --extra voice
+        run: uv sync --locked --python 3.12 --extra dev --extra mlx --extra voice
 
       - name: Ruff (lint)
         run: uv run ruff check .
